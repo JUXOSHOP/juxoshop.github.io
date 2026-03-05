@@ -1,20 +1,21 @@
-const CACHE_NAME = 'jupiter-v3'; // Súbelo a v3 ahora para forzar el cambio
+const CACHE_NAME = 'jupiter-v4'; // Sube a v4 para invalidar todo lo anterior
 const ASSETS = [
-  '/',
-  '/index.html',
-  '/manifest.json'
+  './',
+  './index.html',
+  './manifest.json',
+  './imagenes/logo-app.png' // Agregamos el logo al precaché
 ];
 
-// Instalación: descarga los archivos nuevos
+// Instalación
 self.addEventListener('install', (e) => {
   e.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(ASSETS);
-    }).then(() => self.skipWaiting()) // Obliga al SW a activarse ya mismo
+    }).then(() => self.skipWaiting()) 
   );
 });
 
-// Activación: BORRA los cachés viejos (v1, v2, etc.)
+// Activación: Borra absolutamente todo lo viejo
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys().then((keys) => {
@@ -25,15 +26,15 @@ self.addEventListener('activate', (e) => {
           }
         })
       );
-    }).then(() => self.clients.claim()) // Toma el control de la página inmediatamente
+    }).then(() => self.clients.claim()) 
   );
 });
 
-// Estrategia de respuesta
+// Estrategia de red: Priorizar Red para archivos nuevos, Caché para el resto
 self.addEventListener('fetch', (e) => {
   e.respondWith(
-    caches.match(e.request).then((response) => {
-      return response || fetch(e.request);
+    fetch(e.request).catch(() => {
+      return caches.match(e.request);
     })
   );
 });
