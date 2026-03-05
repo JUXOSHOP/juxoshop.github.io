@@ -251,8 +251,12 @@
             render(cat, document.getElementById('mainSearch').value);
         }
 
-        document.getElementById('mainSearch').oninput = (e) => render(document.querySelector('.chip.active').innerText.toLowerCase(), e.target.value);
-        render();
+    document.getElementById('mainSearch').oninput = (e) => {
+    const activeChip = document.querySelector('.chip.active');
+    const category = activeChip.innerText.toLowerCase() === 'todos' ? 'todos' : activeChip.innerText.toLowerCase();
+    render(category, e.target.value);
+};
+render();
     </script>
 
     <script>
